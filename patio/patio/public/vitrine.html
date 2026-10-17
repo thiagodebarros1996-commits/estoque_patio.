@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitrine</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app.css"></head>
+<body><div id="vit"></div><dialog id="dlg"></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const brl=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const sil='<svg viewBox="0 0 200 100" aria-hidden="true"><path d="M18 72h164V58l-20-8-24-24H84L62 50l-34 8z" fill="currentColor" opacity=".3"/><circle cx="60" cy="74" r="13" fill="currentColor"/><circle cx="146" cy="74" r="13" fill="currentColor"/></svg>';
+const pm=p=>{const i=.0189,n=48,pv=p*.7;return pv*i/(1-Math.pow(1+i,-n))};
+let D,vq='',vm='todas';
+const wa=c=>`https://wa.me/55${String(D.loja.tel).replace(/\D/g,'')}?text=${encodeURIComponent('Olá, tenho interesse no '+c.marca+' '+c.modelo+' '+c.ano)}`;
+function cards(){
+ const l=D.cars.filter(c=>(vm==='todas'||c.marca===vm)&&(c.marca+' '+c.modelo).toLowerCase().includes(vq.toLowerCase()));
+ if(!l.length)return '<div class="empty">Nenhum veículo encontrado.</div>';
+ return '<div class="grid">'+l.map(c=>`<article class="car"><div class="ph" data-id="${c.id}">${c.fotos[0]?`<img loading="lazy" src="${c.fotos[0].url}" alt="${esc(c.marca+' '+c.modelo)}">`:sil}${c.status==='reservado'?'<span class="tag reservado">Reservado</span>':''}</div>
+ <div class="bd"><div class="plate"><i>BRASIL</i><b>${esc(c.placa)}</b></div><h3>${esc(c.marca)} ${esc(c.modelo)}</h3><div class="m">${c.ano} · ${Number(c.km).toLocaleString('pt-BR')} km</div><div class="price">${brl(c.preco)}</div><div class="m">ou 48x de ${brl(pm(c.preco))} com 30% de entrada</div>
+ <div class="acts"><a class="btn s" target="_blank" rel="noopener" href="${wa(c)}">Chamar no WhatsApp</a><button class="btn g s" data-id="${c.id}">Ver fotos</button></div></div></article>`).join('')+'</div>'}
+function render(){
+ const ms=[...new Set(D.cars.map(c=>c.marca))];
+ document.title=D.loja.nome;
+ $('#vit').innerHTML=`<header><h1>${esc(D.loja.nome)}</h1><p>${esc(D.loja.slogan)}</p></header>
+ <div class="tools"><input id="vq" placeholder="Buscar marca ou modelo" aria-label="Buscar"><select id="vm" aria-label="Marca"><option value="todas">Todas as marcas</option>${ms.map(m=>`<option>${esc(m)}</option>`).join('')}</select></div><div id="vl">${cards()}</div>`;
+ $('#vq').oninput=e=>{vq=e.target.value;$('#vl').innerHTML=cards()};$('#vm').onchange=e=>{vm=e.target.value;$('#vl').innerHTML=cards()}}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-id]');if(!t)return;const c=D.cars.find(x=>x.id==t.dataset.id);if(!c)return;
+ $('#dlg').innerHTML=`${c.fotos.length?`<div class="gal">${c.fotos.map(f=>`<img src="${f.url}" alt="">`).join('')}</div>`:''}<h2>${esc(c.marca)} ${esc(c.modelo)}</h2><p class="m">${c.ano} · ${Number(c.km).toLocaleString('pt-BR')} km · placa ${esc(c.placa)}</p><div class="price">${brl(c.preco)}</div><div class="acts" style="margin-top:12px"><a class="btn" target="_blank" rel="noopener" href="${wa(c)}">Chamar no WhatsApp</a><button class="btn g" onclick="$('#dlg').close()">Fechar</button></div>`;
+ $('#dlg').showModal()});
+fetch('/api/public/'+encodeURIComponent(location.pathname.split('/').pop())).then(r=>r.ok?r.json():Promise.reject()).then(d=>{D=d;render()}).catch(()=>{$('#vit').innerHTML='<div class="empty">Loja não encontrada.</div>'});
+</script></body></html>

@@ -1,0 +1,6 @@
+node_modules/
+**/node_modules/
+**/.env
+**/data.db*
+**/uploads/
+runcode.json

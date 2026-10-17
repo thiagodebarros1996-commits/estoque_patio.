@@ -1,0 +1,11 @@
+{
+  "name": "estoque",
+  "private": true,
+  "workspaces": [
+    "patio/patio"
+  ],
+  "scripts": {
+    "start": "npm run start --workspace patio",
+    "dev": "npm run dev --workspace patio"
+  }
+}
