@@ -26,7 +26,8 @@ O projeto inclui um `Dockerfile` na raiz. Na Railway, crie um projeto a partir d
 
 1. Adicione um **Volume** ao serviço, montado em `/data`.
 2. Defina as variáveis `JWT_SECRET` (segredo aleatório com pelo menos 32 caracteres), `DB_FILE=/data/data.db` e `UPLOAD_DIR=/data/uploads`.
-3. Faça o deploy e gere um domínio público nas configurações de Networking.
+3. Mantenha o diretório raiz do serviço na raiz do repositório; o `Dockerfile` já instala as dependências do app e inicia o servidor.
+4. Faça o deploy e gere um domínio público nas configurações de Networking.
 
 O volume guarda o banco SQLite e as fotos entre deploys. Não remova nem recrie o volume sem antes fazer backup. O `.dockerignore` impede que o `.env`, o banco local, uploads e `node_modules` sejam incluídos na imagem.
 
